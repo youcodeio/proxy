@@ -48,7 +48,6 @@ func getChannels() ([]Channel, error) {
 		if err != nil {
 			return nil, err
 		}
-		log.Println(id, name, ytid, isTuts)
 		channels = append(channels, Channel{id, name, ytid, isTuts})
 	}
 	err = rows.Err()
