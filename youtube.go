@@ -15,6 +15,8 @@ var (
 		Transport: &transport.APIKey{Key: developerKey},
 	}
 	developerKey = os.Getenv("KEY_YT")
+	// MaxResults of Youtube API
+	MaxResults = 25
 )
 
 func searchOnChannel(q string, channel string, resultChannel chan []youtube.SearchResultSnippet, wg *sync.WaitGroup) {
@@ -28,7 +30,7 @@ func searchOnChannel(q string, channel string, resultChannel chan []youtube.Sear
 		Order("date").
 		Type("video").
 		Q(q).
-		MaxResults(50)
+		MaxResults(int64(MaxResults))
 	response, err := call.Do()
 	if err != nil {
 		log.Fatalf("Error making search API call: %v", err)

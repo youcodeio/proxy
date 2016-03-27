@@ -16,10 +16,10 @@ var (
 	isTuts       bool
 	path         = "/"
 	db           *sql.DB
-	host         = os.Getenv("HOST_POSTGRE")
-	database     = os.Getenv("DATABASE_POSTGRE")
-	user         = os.Getenv("USER_POSTGRE")
-	password     = os.Getenv("PASSWORD_POSTGRE")
+	host         = os.Getenv("POSTGRESQL_ADDON_HOST")
+	database     = os.Getenv("POSTGRESQL_ADDON_DB")
+	user         = os.Getenv("POSTGRESQL_ADDON_USER")
+	password     = os.Getenv("POSTGRESQL_ADDON_PASSWORD")
 	channelQuery = "SELECT * FROM CHANNELS"
 )
 

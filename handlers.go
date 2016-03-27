@@ -18,7 +18,7 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	resultsChannel := make(chan []youtube.SearchResultSnippet)
+	resultsChannel := make(chan []youtube.SearchResultSnippet, MaxResults)
 
 	var wg sync.WaitGroup
 	var results []youtube.SearchResultSnippet
