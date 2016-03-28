@@ -19,7 +19,7 @@ var (
 	MaxResults = 25
 )
 
-func SearchOnChannel(q string, channel string, resultChannel chan []youtube.SearchResultSnippet, wg *sync.WaitGroup) {
+func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.SearchResult, wg *sync.WaitGroup) {
 	service, err := youtube.New(client)
 	if err != nil {
 		log.Fatalf("Error creating new YouTube client: %v", err)
@@ -35,13 +35,6 @@ func SearchOnChannel(q string, channel string, resultChannel chan []youtube.Sear
 	if err != nil {
 		log.Fatalf("Error making search API call: %v", err)
 	}
-
-	var results []youtube.SearchResultSnippet
-
-	// Parsing result into a clean slice
-	for _, item := range response.Items {
-		results = append(results, *item.Snippet)
-	}
 	wg.Done()
-	resultChannel <- results
+	resultChannel <- response.Items
 }

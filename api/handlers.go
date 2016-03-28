@@ -47,11 +47,12 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 		}
 
 		channels := db.GetChannels()
-		resultsChannel := make(chan []youtube.SearchResultSnippet, database.MaxResults)
+		resultsChannel := make(chan []*youtube.SearchResult, database.MaxResults)
 
 		var wg sync.WaitGroup
-		var results []youtube.SearchResultSnippet
+		var results []youtube.SearchResult
 		for _, channel := range channels {
+			log.Println("Querying", query, "on", channel.Name)
 			wg.Add(1)
 			go database.SearchOnChannel(query, channel.Ytid, resultsChannel, &wg)
 		}
@@ -59,7 +60,7 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 		log.Println("Fetching done")
 		for index := 0; index < len(channels); index++ {
 			for _, result := range <-resultsChannel {
-				results = append(results, result)
+				results = append(results, *result)
 			}
 		}
 
