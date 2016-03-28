@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 	"sync"
 
 	"google.golang.org/api/youtube/v3"
 
 	"github.com/gorilla/mux"
 	"github.com/youcodeio/proxy/database"
+	"github.com/youcodeio/proxy/utils"
 )
 
 // NewRouter return a new mux Router
@@ -63,6 +65,9 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 				results = append(results, *result)
 			}
 		}
+
+		// Sorting
+		sort.Sort(utils.Channels(results))
 
 		json, err := json.Marshal(results)
 		if err != nil {
