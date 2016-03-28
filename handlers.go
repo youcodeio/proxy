@@ -18,11 +18,7 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channels, err := getChannels()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	channels := getChannels()
 
 	resultsChannel := make(chan []youtube.SearchResultSnippet, MaxResults)
 
@@ -53,10 +49,7 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 // Channelslist Return list of channels
 func Channelslist(w http.ResponseWriter, r *http.Request) {
 
-	channels, err := getChannels()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	channels := getChannels()
 
 	json, err := json.Marshal(channels)
 	if err != nil {

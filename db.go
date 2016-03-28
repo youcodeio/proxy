@@ -5,22 +5,24 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
 
 var (
-	id           int
-	name         string
-	ytid         string
-	isTuts       bool
-	path         = "/"
-	db           *sql.DB
-	host         = os.Getenv("POSTGRESQL_ADDON_HOST")
-	database     = os.Getenv("POSTGRESQL_ADDON_DB")
-	user         = os.Getenv("POSTGRESQL_ADDON_USER")
-	password     = os.Getenv("POSTGRESQL_ADDON_PASSWORD")
-	channelQuery = "SELECT * FROM CHANNELS"
+	// Cache version of ChannelsLists. Upgrade every hour, see init()
+	channelsListsCached []Channel
+	id                  int
+	name                string
+	ytid                string
+	isTuts              bool
+	path                = "/"
+	db                  *sql.DB
+	host                = os.Getenv("POSTGRESQL_ADDON_HOST")
+	database            = os.Getenv("POSTGRESQL_ADDON_DB")
+	user                = os.Getenv("POSTGRESQL_ADDON_USER")
+	password            = os.Getenv("POSTGRESQL_ADDON_PASSWORD")
 )
 
 // Channel type
@@ -33,28 +35,48 @@ type Channel struct {
 
 func init() {
 	db = initDB()
+
+	// Refresh cache for channels
+	channelsListsCached = getChannelsFromDB()
+	ticker := time.NewTicker(1 * time.Hour)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				channelsListsCached = getChannelsFromDB()
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 }
 
-func getChannels() ([]Channel, error) {
+func getChannels() []Channel {
+	return channelsListsCached
+}
+
+func getChannelsFromDB() []Channel {
 	var channels []Channel
 	rows, err := db.Query("select * FROM CHANNELS")
 	log.Println("Fetching db")
 	if err != nil {
-		return nil, err
+		log.Fatal("Error fetching Database:", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&id, &name, &ytid, &isTuts)
 		if err != nil {
-			return nil, err
+			log.Fatal("Error fetching Database:", err)
 		}
 		channels = append(channels, Channel{id, name, ytid, isTuts})
 	}
 	err = rows.Err()
 	if err != nil {
-		return nil, err
+		log.Fatal("Error fetching Database:", err)
 	}
-	return channels, nil
+	return channels
 }
 
 func initDB() *sql.DB {
