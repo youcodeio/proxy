@@ -9,14 +9,3 @@ endpoint: https://youcode-backend.cleverapps.io/
 | ------------ | ------------ | ------------ |
 | GET | /channels | Return all the channels handled by YouCode |
 | GET | /query?query="Golang" | Returns all the videos matching Golang from the selected channels |
-
-# DB model
-        CREATE TABLE CHANNELS(
-                ID             SERIAL PRIMARY KEY,
-                NAME           TEXT      NOT NULL,
-                YTID           TEXT      NOT NULL,
-                ISTUTS         BOOLEAN   NOT NULL
-    );
-
-# Insert data into DB
-    INSERT INTO CHANNELS (NAME, YTID, ISTUTS) VALUES ('Google Developers', 'UC_x5XG1OV2P6uZZ5FSM9Ttw', false);
