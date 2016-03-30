@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strconv"
 	"sync"
 
 	"google.golang.org/api/youtube/v3"
@@ -55,6 +56,7 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 		numCalls.Add(1)
 
 		query := r.URL.Query().Get("query")
+		tuto := r.URL.Query().Get("istuts")
 		if len(query) == 0 {
 			http.Error(w, "Not enough args", http.StatusBadRequest)
 			return
@@ -68,9 +70,11 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 		var wg sync.WaitGroup
 		var results []youtube.SearchResult
 		for _, channel := range channels {
-			log.Println("Querying", query, "on", channel.Name)
-			wg.Add(1)
-			go database.SearchOnChannel(query, channel.Ytid, resultsChannel, &wg)
+			if len(tuto) == 0 || strconv.FormatBool(channel.IsTuts) == tuto {
+				log.Println("Querying", query, "on", channel.Name)
+				wg.Add(1)
+				go database.SearchOnChannel(query, channel.Ytid, resultsChannel, &wg)
+			}
 		}
 		wg.Wait()
 		log.Println("Fetching done")
