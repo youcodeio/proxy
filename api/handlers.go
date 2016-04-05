@@ -26,7 +26,7 @@ var numCalls = expvar.NewInt("youcodeio.counter.api.calls")
 func NewRouter(db *database.YouCodeDB) *mux.Router {
 	r := mux.NewRouter()
 	r.Handle("/channels", GetChannels(db))
-	r.Handle("/query", GetQuery(db))
+	r.Handle("/search", GetQuery(db))
 	r.Handle("/debug/vars", http.DefaultServeMux)
 	return r
 }
