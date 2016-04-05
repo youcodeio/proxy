@@ -8,5 +8,5 @@ endpoint: https://youcode-backend.cleverapps.io/
 | Verb | URL | Description |
 | ------------ | ------------ | ------------ |
 | GET | /channels | Return all the channels handled by YouCode |
-| GET | /search?query=Golang | Returns all the videos matching Golang from the selected channels |
+| GET | /search?query=Go&istuts=true| Returns all the videos matching Golang from the selected channels. IsTuts is optionnal |
 | GET | /debug/vars | Expvar mode. Exposing go's metrics and also last research and number of calls for the API
