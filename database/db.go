@@ -78,7 +78,7 @@ func InitDB() *YouCodeDB {
 	}
 
 	// Limit conns
-	DataBase.SetMaxOpenConns(5)
+	DataBase.SetMaxOpenConns(1)
 	return &YouCodeDB{DataBase}
 }
 

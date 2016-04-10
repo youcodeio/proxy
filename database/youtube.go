@@ -16,10 +16,10 @@ var (
 	}
 	developerKey = os.Getenv("KEY_YT")
 	// MaxResults of Youtube API
-	MaxResults = 25
+	DefaultMaxResults = int64(25)
 )
 
-func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.SearchResult, wg *sync.WaitGroup) {
+func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.SearchResult, wg *sync.WaitGroup, MaxResults int64) {
 	service, err := youtube.New(client)
 	if err != nil {
 		log.Fatalf("Error creating new YouTube client: %v", err)
