@@ -47,7 +47,7 @@ func (db *YouCodeDB) GetChannels() []Channel {
 func (db *YouCodeDB) getChannelsFromDB() []Channel {
 	var channels []Channel
 	rows, err := db.Query("select * FROM CHANNELS")
-	log.Println("Fetching db")
+	log.Println("Fetching db...")
 	if err != nil {
 		log.Fatal("Error fetching Database:", err)
 	}
@@ -63,6 +63,7 @@ func (db *YouCodeDB) getChannelsFromDB() []Channel {
 	if err != nil {
 		log.Fatal("Error fetching Database:", err)
 	}
+	log.Println("Fetching db done, found", len(channels), "channels")
 	return channels
 }
 
