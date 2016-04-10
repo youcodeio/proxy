@@ -30,7 +30,6 @@ type YouCodeDB struct {
 
 // Channel type
 type Channel struct {
-	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Ytid   string `json:"ytid"`
 	IsTuts bool   `json:"isTuts"`
@@ -76,7 +75,7 @@ func (db *YouCodeDB) getChannelsFromDB() []Channel {
 		if err != nil {
 			log.Fatal("Error fetching Database:", err)
 		}
-		channels = append(channels, Channel{id, name, ytid, isTuts})
+		channels = append(channels, Channel{name, ytid, isTuts})
 	}
 	err = rows.Err()
 	if err != nil {
