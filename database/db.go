@@ -40,6 +40,25 @@ type AppDatabase interface {
 	getChannelsFromDB() []Channel
 }
 
+//AddChannels provide a simple way for admin to add channels
+func (db *YouCodeDB) AddChannel(name string, ytid string, isTuts bool) bool {
+
+	log.Println("Inserting", name, ytid, isTuts)
+
+	stmt, err := db.Prepare("INSERT INTO CHANNELS (NAME, YTID, ISTUTS) VALUES (?,?,?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := stmt.Exec(name, ytid, isTuts)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	log.Println(res)
+
+	return true
+}
+
 func (db *YouCodeDB) GetChannels() []Channel {
 	return channelsListsCached
 }
