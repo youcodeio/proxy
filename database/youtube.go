@@ -35,6 +35,10 @@ func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.Sea
 	if err != nil {
 		log.Fatalf("Error making search API call: %v", err)
 	}
+
+	if (len(response.Items)) != 0 {
+		log.Println("Pushing", len(response.Items), "for", q, "from", channel)
+		resultChannel <- response.Items
+	}
 	wg.Done()
-	resultChannel <- response.Items
 }

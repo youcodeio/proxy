@@ -65,7 +65,7 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 		lastSearch.Set(query)
 
 		channels := db.GetChannels()
-		resultsChannel := make(chan []*youtube.SearchResult, database.MaxResults)
+		resultsChannel := make(chan []*youtube.SearchResult, database.MaxResults*len(channels))
 
 		var wg sync.WaitGroup
 		var results []youtube.SearchResult
@@ -76,16 +76,25 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 				go database.SearchOnChannel(query, channel.Ytid, resultsChannel, &wg)
 			}
 		}
+
 		wg.Wait()
-		log.Println("Fetching done")
+		close(resultsChannel)
+
+		log.Println("Size of resultsChannels", len(resultsChannel))
+
 		for index := 0; index < len(channels); index++ {
+			// Because we closed the channel above,
+			// the iteration terminates after receiving the events
 			for _, result := range <-resultsChannel {
+				// log.Println("Pushing ", *result.Id)
 				results = append(results, *result)
 			}
 		}
 
+		log.Println("Sorting results...")
 		// Sorting
 		sort.Sort(utils.Channels(results))
+		log.Println("Done")
 
 		json, err := json.Marshal(results)
 		if err != nil {
