@@ -34,6 +34,7 @@ func NewRouter(db *database.YouCodeDB) *mux.Router {
 // GetChannels returns the list of channels used by YouCode
 func GetChannels(db *database.YouCodeDB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		numCalls.Add(1)
 
@@ -52,6 +53,7 @@ func GetChannels(db *database.YouCodeDB) http.Handler {
 // GetQuery return the result of a query on all the channels available
 func GetQuery(db *database.YouCodeDB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		numCalls.Add(1)
 
