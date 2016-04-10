@@ -66,6 +66,19 @@ func GetChannelInfo(db *database.YouCodeDB) http.Handler {
 		}
 		numCalls.Add(1)
 
+		var videoSize int64
+		var err error
+		size := r.URL.Query().Get("size")
+		if len(size) == 0 {
+			videoSize = 2
+		} else {
+			videoSize, err = strconv.ParseInt(size, 10, 64)
+			if err != nil {
+				http.Error(w, "size is not a number", http.StatusBadRequest)
+				return
+			}
+		}
+
 		vars := mux.Vars(r)
 		id := vars["channel"]
 
@@ -74,13 +87,13 @@ func GetChannelInfo(db *database.YouCodeDB) http.Handler {
 			return
 		}
 
-		resultsChannel := make(chan []*youtube.SearchResult, 2)
+		resultsChannel := make(chan []*youtube.SearchResult, videoSize)
 
 		var wg sync.WaitGroup
 		var results []youtube.SearchResult
 
 		wg.Add(1)
-		go database.SearchOnChannel("", id, resultsChannel, &wg, 2)
+		go database.SearchOnChannel("", id, resultsChannel, &wg, videoSize)
 
 		wg.Wait()
 		close(resultsChannel)
