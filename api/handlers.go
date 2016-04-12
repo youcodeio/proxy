@@ -24,9 +24,10 @@ var numCalls = expvar.NewInt("youcodeio.counter.api.calls")
 // NewRouter return a new mux Router
 // https://groups.google.com/forum/#!msg/golang-nuts/Xs-Ho1feGyg/xg5amXHsM_oJ
 func NewRouter(db *database.YouCodeDB) *mux.Router {
-	r := mux.NewRouter()
+	r := mux.NewRouter().StrictSlash(true)
 	r.Handle("/channels", GetChannels(db))
-	r.Handle("/channel/{channel}", GetChannelInfo(db))
+	r.Handle("/channels/{channel}/lastVideos", GetChannelLatestVideos())
+	r.Handle("/channels/{channel}/info", GetChannelInfo())
 	r.Handle("/search", GetQuery(db))
 	r.Handle("/debug/vars", http.DefaultServeMux)
 	return r
@@ -56,7 +57,8 @@ func GetChannels(db *database.YouCodeDB) http.Handler {
 	})
 }
 
-func GetChannelInfo(db *database.YouCodeDB) http.Handler {
+//GetChannelLatestVideos returns the latest videos from a channel
+func GetChannelLatestVideos() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if origin := r.Header.Get("Origin"); origin != "" {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -179,6 +181,33 @@ func GetQuery(db *database.YouCodeDB) http.Handler {
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(json)
+	})
+}
+
+func GetChannelInfo() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if origin := r.Header.Get("Origin"); origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers",
+				"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		}
+
+		vars := mux.Vars(r)
+		id := vars["channel"]
+		resultChannel := make(chan *youtube.ChannelListResponse)
+
+		log.Println("Querying channel", id, "for info")
+
+		go database.ChannelInfo(id, resultChannel)
+
+		json, err := json.Marshal(<-resultChannel)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(json)
 	})

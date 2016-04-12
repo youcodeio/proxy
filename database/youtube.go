@@ -15,15 +15,13 @@ var (
 		Transport: &transport.APIKey{Key: developerKey},
 	}
 	developerKey = os.Getenv("KEY_YT")
-	// MaxResults of Youtube API
+	// DefaultMaxResults of Youtube API
 	DefaultMaxResults = int64(25)
+	service           *youtube.Service
 )
 
 func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.SearchResult, wg *sync.WaitGroup, MaxResults int64) {
-	service, err := youtube.New(client)
-	if err != nil {
-		log.Fatalf("Error creating new YouTube client: %v", err)
-	}
+
 	// Make the API call to YouTube.
 	call := service.Search.List("id,snippet").
 		ChannelId(channel).
@@ -41,4 +39,23 @@ func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.Sea
 		resultChannel <- response.Items
 	}
 	wg.Done()
+}
+
+//ChannelInfo returns info about a channel
+func ChannelInfo(channelID string, resultChan chan *youtube.ChannelListResponse) {
+
+	call := service.Channels.List("id,snippet,contentDetails,statistics").Id(channelID)
+	response, err := call.Do()
+	if err != nil {
+		log.Fatalf("Error making search API call: %v", err)
+	}
+	resultChan <- response
+}
+
+func init() {
+	var err error
+	service, err = youtube.New(client)
+	if err != nil {
+		log.Fatalf("Error creating new YouTube client: %v", err)
+	}
 }
