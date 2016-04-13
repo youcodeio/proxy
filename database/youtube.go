@@ -44,7 +44,7 @@ func SearchOnChannel(q string, channel string, resultChannel chan []*youtube.Sea
 //ChannelInfo returns info about a channel
 func ChannelInfo(channelID string, resultChan chan *youtube.ChannelListResponse) {
 
-	call := service.Channels.List("id,snippet,contentDetails,statistics").Id(channelID)
+	call := service.Channels.List("id,snippet,contentDetails,statistics,brandingSettings").Id(channelID)
 	response, err := call.Do()
 	if err != nil {
 		log.Fatalf("Error making search API call: %v", err)
